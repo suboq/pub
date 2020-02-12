@@ -1,1 +1,1 @@
-"@ruj/prettier-config"
+"./packages/prettier-config/index.json"

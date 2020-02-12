@@ -1,41 +1,9 @@
 {
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "esnext",
-    "lib": ["dom", "esnext"],
-    "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noUnusedLocals": false,
-    "resolveJsonModule": true,
-    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@api": ["./src/api/index"],
-      "@api/*": ["./src/api/*"],
-      "@components": ["./src/components/index"],
-      "@components/*": ["./src/components/*"],
-      "@helpers": ["./src/helpers/index"],
-      "@helpers/*": ["./src/helpers/*"],
-      "@hooks": ["./src/hooks/index"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@images": ["./src/images/index"],
-      "@images/*": ["./src/images/*"],
-      "@mocks": ["./src/mocks/index"],
-      "@mocks/*": ["./src/mocks/*"],
-      "@pages": ["./src/pages/index"],
-      "@pages/*": ["./src/pages/*"],
-      "@styles": ["./src/styles/index"],
-      "@styles/*": ["./src/styles/*"],
-      "@templates": ["./src/templates/index"],
-      "@templates/*": ["./src/templates/*"],
-      "@utils": ["./src/utils/index"],
-      "@utils/*": ["./src/utils/*"],
-      "@static/*": ["./static/*"],
-      "@/*": ["./src/*"]
+      "@pub/*": ["packages/*/src"]
     }
-  },
-  "exclude": ["node_modules", "public", ".cache"]
+  }
 }
