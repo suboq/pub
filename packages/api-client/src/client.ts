@@ -10,6 +10,11 @@ import { ProjectUserResource } from './resources/project-user-resource';
 import { UserResource } from './resources/user-resource';
 import { UtilResource } from './resources/util-resource';
 
+export type ServerResponse<T> = {
+  ok: boolean;
+  data: T;
+};
+
 export type ServerError = {
   status: 400 | 401 | 403 | 404 | 500;
   message: string;
@@ -21,11 +26,14 @@ export type ClientResponse<T> =
 
 export type ClientOptions = {
   baseUrl: string;
+  useMock: boolean;
 };
 
 export class Client {
   public static DEFAULT_OPTIONS: ClientOptions = {
-    baseUrl: 'https://pub-api.azurewebsites.net',
+    baseUrl:
+      process.env.API_BASE_URL || 'https://pub-api.azurewebsites.net/api',
+    useMock: Boolean(process.env.MOCK_API_CLIENT),
   };
 
   private _token?: string;
@@ -110,10 +118,14 @@ export class Client {
   private async makeRequest<T>(
     config: AxiosRequestConfig,
   ): Promise<ClientResponse<T>> {
-    let response: AxiosResponse<T>;
+    let response: AxiosResponse<ServerResponse<T>>;
 
     try {
       response = await this.http.request({ ...config });
+
+      if (!response.data.ok) {
+        throw new Error('client/response-valid-but-ok-field-is-falsey');
+      }
     } catch (error) {
       const { response } = error as AxiosError<ServerError>;
 
@@ -124,6 +136,6 @@ export class Client {
       throw error;
     }
 
-    return { data: response.data };
+    return { data: response.data.data };
   }
 }
