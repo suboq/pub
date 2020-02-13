@@ -1,160 +1,129 @@
-import Axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import Axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
+import { ProjectResource } from './resources/project-resource';
+import { AuthResource } from './resources/auth-resource';
+import { ProjectUserResource } from './resources/project-user-resource';
+import { UserResource } from './resources/user-resource';
+import { UtilResource } from './resources/util-resource';
 
-import {
-  Project,
-  User,
-  JwtToken,
-  SignUp,
-  ProjectUser,
-  Username,
-  ProjectType,
-} from './api-types';
-
-/**
- * ServerError defines the object returned by the server when an error happens.
- */
 export type ServerError = {
   status: 400 | 401 | 403 | 404 | 500;
   message: string;
 };
 
-/**
- * ClientResponse contains a field called `ok` with the value of `true` if the
- * request was successful. Otherwise, `ok` is `false`, and a `ServerError`
- * object is available in an `error` field.
- */
 export type ClientResponse<T> =
   | { error?: never; data: T }
   | { error: ServerError; data?: never };
 
-export type Client = {
-  /** projects return a list of `Project` objects. */
-  projects: () => Promise<ClientResponse<Project[]>>;
+export type ClientOptions = {
+  baseUrl: string;
 };
 
-Axios.defaults.baseURL = process.env.API_CLIENT_ENDPOINT;
+export class Client {
+  public static DEFAULT_OPTIONS: ClientOptions = {
+    baseUrl: 'https://pub-api.azurewebsites.net',
+  };
 
-/**
- * makeRequest wraps an fetch call and returns an appropirate response object.
- */
-async function makeRequest<T>(
-  config: AxiosRequestConfig,
-): Promise<ClientResponse<T>> {
-  let response: AxiosResponse<T>;
+  private _token?: string;
+  public http: AxiosInstance;
 
-  try {
-    response = await Axios.request({ ...config });
-  } catch (error) {
-    const { response } = error as AxiosError<ServerError>;
+  public auth: AuthResource;
+  public project: ProjectResource;
+  public projectUser: ProjectUserResource;
+  public user: UserResource;
+  public util: UtilResource;
 
-    if (response) {
-      return { error: response.data };
-    }
+  public constructor(private options: Partial<ClientOptions> = {}) {
+    this.options = { ...Client.DEFAULT_OPTIONS, ...options };
+    this.http = this.createHttpClient();
 
-    throw error;
+    this.auth = new AuthResource(this);
+    this.project = new ProjectResource(this);
+    this.projectUser = new ProjectUserResource(this);
+    this.user = new UserResource(this);
+    this.util = new UtilResource(this);
   }
 
-  return { data: response.data };
-}
+  public setToken(token: string): Client {
+    this._token = token;
+    this.http.defaults.headers.Authorization = `Bearer ${this._token}`;
 
-export async function login(email: string, password: string) {
-  return makeRequest<JwtToken>({
-    url: '/auth/login',
-    method: 'POST',
-    data: {
-      email,
-      password,
-    },
-  });
-}
+    return this;
+  }
 
-export async function register(signUpData: SignUp) {
-  return makeRequest<JwtToken>({
-    url: '/auth/register',
-    method: 'POST',
-    data: signUpData,
-  });
-}
+  public get<T = {}>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ClientResponse<T>> {
+    return this.makeRequest({
+      ...config,
+      method: 'GET',
+      url,
+    });
+  }
 
-export async function projects() {
-  return makeRequest<Project[]>({
-    url: '/projects',
-  });
-}
+  public post<T = {}>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ClientResponse<T>> {
+    return this.makeRequest({
+      ...config,
+      method: 'POST',
+      url,
+    });
+  }
 
-export async function createProject(projectData: Project) {
-  return makeRequest<Project>({
-    url: '/projects',
-    method: 'POST',
-    data: projectData,
-  });
-}
+  public put<T = {}>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ClientResponse<T>> {
+    return this.makeRequest({
+      ...config,
+      method: 'PUT',
+      url,
+    });
+  }
 
-export async function project(id: string) {
-  return makeRequest<Project>({
-    url: `/projects/${id}`,
-  });
-}
+  public delete<T = {}>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ClientResponse<T>> {
+    return this.makeRequest({
+      ...config,
+      method: 'DELETE',
+      url,
+    });
+  }
 
-export async function deleteProject(id: string) {
-  return makeRequest({
-    url: `/projects/${id}`,
-    method: 'DELETE',
-  });
-}
+  private createHttpClient() {
+    const axiosInstance = Axios.create({
+      baseURL: this.options.baseUrl,
+    });
 
-export async function createProjectUser(projectUserData: ProjectUser) {
-  return makeRequest<ProjectUser>({
-    url: '/projectusers',
-    method: 'POST',
-    data: projectUserData,
-  });
-}
+    return axiosInstance;
+  }
 
-export async function deleteProjectUser(id: string) {
-  return makeRequest({
-    url: `/projectusers/${id}`,
-    method: 'DELETE',
-  });
-}
+  private async makeRequest<T>(
+    config: AxiosRequestConfig,
+  ): Promise<ClientResponse<T>> {
+    let response: AxiosResponse<T>;
 
-export async function putUser(userData: User) {
-  return makeRequest<User>({
-    url: '/users',
-    method: 'PUT',
-    data: userData,
-  });
-}
+    try {
+      response = await this.http.request({ ...config });
+    } catch (error) {
+      const { response } = error as AxiosError<ServerError>;
 
-export async function user(id: string) {
-  return makeRequest<User>({
-    url: `/user/${id}`,
-  });
-}
+      if (response) {
+        return { error: response.data };
+      }
 
-export async function validateUsername(username: Username) {
-  return makeRequest({
-    url: '/util',
-    method: 'POST',
-    data: username,
-  });
-}
+      throw error;
+    }
 
-export async function projectTypes() {
-  return makeRequest<ProjectType>({
-    url: '/util/projecttypes',
-    method: 'GET',
-  });
+    return { data: response.data };
+  }
 }
-
-export async function sendFeedback(content: string) {
-  return makeRequest({
-    url: '/util/send-feedback',
-    method: 'POST',
-    data: content,
-  });
-}
-
-export default {
-  projects,
-};

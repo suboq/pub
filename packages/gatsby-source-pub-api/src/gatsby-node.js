@@ -1,11 +1,7 @@
-const pubClient = require('@pub/api-client');
+const { Client } = require('@pub/api-client');
 
 exports.sourceNodes = async () => {
-  const projects = await pubClient.default.projects();
+  const client = new Client();
 
-  if (projects.error) {
-    return projects.error;
-  }
-
-  return projects.data;
+  console.log(client.project.getAll());
 };

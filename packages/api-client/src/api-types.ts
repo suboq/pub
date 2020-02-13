@@ -61,6 +61,11 @@ export type User = {
   id?: string;
 };
 
+export type UserValidation = {
+  valid: boolean;
+  reason: string;
+};
+
 export type Username = {
   username: string;
 };
