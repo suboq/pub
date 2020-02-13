@@ -6,9 +6,10 @@ node_js:
 cache: npm
 
 before_install:
-# install codecov to send code
-# coverage reports
-- npm install codecov -g
+  # install codecov to send code coverage reports; and
+  # lerna for bootstrapping packages
+  - npm install codecov lerna -g
+  - lerna bootstrap
 
 jobs:
   include:

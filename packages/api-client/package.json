@@ -1,4 +1,17 @@
 {
   "name": "@pub/api-client",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf -rf ./dist",
+    "prebuild": "npm run clean",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
 }
