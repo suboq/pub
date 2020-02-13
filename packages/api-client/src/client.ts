@@ -25,12 +25,12 @@ export type ClientResponse<T> =
   | { error: ServerError; data?: never };
 
 export type ClientOptions = {
-  baseUrl: string;
-  useMock: boolean;
+  readonly baseUrl: string;
+  readonly useMock: boolean;
 };
 
 export class Client {
-  public static DEFAULT_OPTIONS: ClientOptions = {
+  public static readonly DEFAULT_OPTIONS: ClientOptions = {
     baseUrl:
       process.env.API_BASE_URL || 'https://pub-api.azurewebsites.net/api',
     useMock: Boolean(process.env.MOCK_API_CLIENT),
