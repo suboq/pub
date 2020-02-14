@@ -72,6 +72,7 @@ yarn-error.log
 .yarn-integrity
 
 # Local setup
+dist/
 tmp/
 temp/
 .tmp/
