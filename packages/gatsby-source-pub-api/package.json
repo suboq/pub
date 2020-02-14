@@ -1,6 +1,7 @@
 {
   "name": "@pub/gatsby-source-pub-api",
   "version": "0.1.0",
+  "private": true,
   "dependencies": {
     "@pub/api-client": "^0.1.0"
   }
