@@ -16,9 +16,30 @@ To use in another package:
 
 ```tsx
 // filepath: <rootDir>/packages/my-other-web-app/src/app.tsx
-import PubApi, { Project } from '@pub/api-client';
+import React, { FC, useEffect, useState } from 'react';
+import { Client, Project } from '@pub/api-client';
 
-async function getProjects(): Promise<Project[]> {
-  return PubApi.projects();
-}
+export const App: FC = () => {
+  const client = new Client();
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    client.project
+      .getAll()
+      .then(({ data }) => setProjects(data))
+      .catch(console.error);
+  }, []);
+
+  return (
+    <div>
+      <h2>All Projects</h2>
+
+      <ul>
+        {projects.map(({ id, name }) => (
+          <li key={id}>{name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 ```
