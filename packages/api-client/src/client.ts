@@ -67,7 +67,7 @@ export class Client {
     return this;
   }
 
-  public get<T = {}>(
+  public get<T = undefined>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<ClientResponse<T>> {
@@ -78,7 +78,7 @@ export class Client {
     });
   }
 
-  public post<T = {}>(
+  public post<T = undefined>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<ClientResponse<T>> {
@@ -89,7 +89,7 @@ export class Client {
     });
   }
 
-  public put<T = {}>(
+  public put<T = undefined>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<ClientResponse<T>> {
@@ -100,7 +100,7 @@ export class Client {
     });
   }
 
-  public delete<T = {}>(
+  public delete<T = undefined>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<ClientResponse<T>> {
@@ -125,7 +125,7 @@ export class Client {
     let response: AxiosResponse<ServerResponse<T>>;
 
     try {
-      response = await this.http.request({ ...config });
+      response = await this.http.request(config);
 
       if (!response.data.ok) {
         throw new Error('client/response-valid-but-ok-field-is-falsey');
