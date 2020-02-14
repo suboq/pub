@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "module": "ESNext",
+    "composite": true,
+    "declaration": true,
+    "module": "commonjs",
     "moduleResolution": "node",
-    "target": "esnext",
-    "lib": ["dom", "esnext"],
+    "target": "es6",
+    "lib": ["ES6"],
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "",
     "baseUrl": "."
   },
   "exclude": ["node_modules", "dist"]

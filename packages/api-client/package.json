@@ -7,9 +7,10 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rimraf -rf ./dist",
     "prebuild": "npm run clean",
-    "build": "tsc"
+    "build": "npm run compile",
+    "clean": "rimraf -rf ./dist && rimraf -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "axios": "^0.19.2"
