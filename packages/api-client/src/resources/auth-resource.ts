@@ -17,7 +17,7 @@ export class AuthResource extends BaseResource {
   }
 
   public register(user: User) {
-    return this.client.post<JwtToken>('auth/register', {
+    return this.client.post<JwtToken>('/auth/register', {
       data: user,
     });
   }

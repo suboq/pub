@@ -8,7 +8,7 @@ export class UserResource extends BaseResource {
   }
 
   public get(id: string) {
-    return this.client.get<User>(`/ users/${id}`);
+    return this.client.get<User>(`/users/${id}`);
   }
 
   public create(user: User) {
