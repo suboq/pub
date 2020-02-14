@@ -4,11 +4,15 @@ import Axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import { ProjectResource } from './resources/project-resource';
-import { AuthResource } from './resources/auth-resource';
-import { ProjectUserResource } from './resources/project-user-resource';
-import { UserResource } from './resources/user-resource';
-import { UtilResource } from './resources/util-resource';
+
+import { MockError } from './mock-error';
+import {
+  ProjectResource,
+  AuthResource,
+  ProjectUserResource,
+  UserResource,
+  UtilResource,
+} from './resources';
 
 export type ServerResponse<T> = {
   ok: boolean;
