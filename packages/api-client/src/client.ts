@@ -15,14 +15,14 @@ export type ServerResponse<T> = {
   data: T;
 };
 
-export type ServerError = {
+export type ClientError = {
   status: 400 | 401 | 403 | 404 | 500;
   message: string;
 };
 
 export type ClientResponse<T> =
   | { error?: never; data: T }
-  | { error: ServerError; data?: never };
+  | { error: ClientError; data?: never };
 
 export type ClientOptions = {
   readonly baseUrl: string;
@@ -36,7 +36,7 @@ export class Client {
     useMock: Boolean(process.env.MOCK_API_CLIENT),
   };
 
-  private _token?: string;
+  private token?: string;
   public http: AxiosInstance;
 
   public auth: AuthResource;
@@ -57,8 +57,8 @@ export class Client {
   }
 
   public setToken(token: string): Client {
-    this._token = token;
-    this.http.defaults.headers.Authorization = `Bearer ${this._token}`;
+    this.token = token;
+    this.http.defaults.headers.Authorization = `Bearer ${this.token}`;
 
     return this;
   }
@@ -127,7 +127,7 @@ export class Client {
         throw new Error('client/response-valid-but-ok-field-is-falsey');
       }
     } catch (error) {
-      const { response } = error as AxiosError<ServerError>;
+      const { response } = error as AxiosError<ClientError>;
 
       if (response) {
         return { error: response.data };
