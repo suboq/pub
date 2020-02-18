@@ -1,4 +1,4 @@
-const { Client } = require('@pub/api-client');
+const { createClient } = require('@pub/api-client');
 
 exports.sourceNodes = async () => {
   // TODO: Create project schema, pages, paginated projects list, etc.

@@ -19,7 +19,7 @@ export class UtilResource extends BaseResource {
     return this.client.get<ProjectType>('util/projecttypes');
   }
 
-  public setFeedback(content: string) {
+  public sendFeedback(content: string) {
     return this.client.post('/util/send-feedback', {
       data: {
         content,
