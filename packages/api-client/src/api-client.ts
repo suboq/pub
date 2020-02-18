@@ -22,7 +22,8 @@ type ServerResponse<T> = {
 export class ApiClient implements Client {
   public static readonly DEFAULT_OPTIONS: ClientOptions = {
     baseUrl:
-      process.env.API_BASE_URL || 'https://pub-api.azurewebsites.net/api',
+      process.env.API_CLIENT_BASE_URL ||
+      'https://pub-api.azurewebsites.net/api',
   };
 
   private token?: string;

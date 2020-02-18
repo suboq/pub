@@ -9,68 +9,171 @@ import {
   ProjectType,
 } from './api-types';
 import { Client, ClientResponse } from './client';
+import { MockStore, createMockStore } from './mock-store';
 
 export class MockClient implements Client {
+  private token?: string;
+  private store: MockStore;
+
+  public constructor() {
+    this.store = createMockStore();
+  }
+
+  public setToken(token: string): Client {
+    this.token = token;
+
+    return this;
+  }
+
   public auth = {
-    login(email: string, password: string): ClientResponse<JwtToken> {
-      throw new Error('Method not implemented.');
+    login: async (
+      email: string,
+      password: string,
+    ): ClientResponse<JwtToken> => {
+      if (email.trim() && password.trim()) {
+        return { data: { token: '' } };
+      }
+
+      return { error: { message: 'Bad Request', status: 400 } };
     },
-    register(user: User): ClientResponse<JwtToken> {
-      throw new Error('Method not implemented.');
+    register: async (user: User): ClientResponse<JwtToken> => {
+      if (user.username.trim()) {
+        return { data: { token: '' } };
+      }
+
+      return { error: { message: 'Bad Request', status: 400 } };
     },
   };
 
   public project = {
-    getAll(): ClientResponse<Project[]> {
-      throw new Error('Method not implemented.');
+    getAll: async (): ClientResponse<Project[]> => ({
+      data: this.store.get('projects'),
+    }),
+    get: async (id: string): ClientResponse<Project> => {
+      const projects = this.store.get('projects');
+      const project = projects.find((v) => v.id === id);
+
+      if (project) {
+        return { data: project };
+      }
+
+      return { error: { message: 'Not Found', status: 404 } };
     },
-    get(id: string): ClientResponse<Project> {
-      throw new Error('Method not implemented.');
-    },
-    create(project: Project): ClientResponse<undefined> {
-      throw new Error('Method not implemented.');
+    create: async (project: Project): ClientResponse => {
+      if (!this.hasToken()) {
+        return { error: { message: 'Unauthorized', status: 401 } };
+      }
+
+      if (
+        this.store
+          .get('projects')
+          .find(({ id }) => id && project.id && id === project.id)
+      ) {
+        return { error: { message: 'Bad Request', status: 400 } };
+      }
+
+      // this.store.add('projects', project);
+
+      return { data: undefined };
     },
   };
+
   public projectUser = {
-    create(projectUser: ProjectUser): ClientResponse<ProjectUser> {
-      throw new Error('Method not implemented.');
+    create: async (projectUser: ProjectUser): ClientResponse<ProjectUser> => {
+      if (
+        this.store
+          .get('projectUsers')
+          .find(({ id }) => id && projectUser.id && id === projectUser.id)
+      ) {
+        return { error: { message: 'Bad Request', status: 400 } };
+      }
+
+      return { data: projectUser };
     },
-    delete(id: string): ClientResponse<undefined> {
-      throw new Error('Method not implemented.');
+    delete: async (id: string): ClientResponse => {
+      if (!this.hasToken()) {
+        return { error: { message: 'Unauthorized', status: 401 } };
+      }
+
+      if (!this.store.get('projects').find((v) => v.id === id)) {
+        return { error: { message: 'Not Found', status: 404 } };
+      }
+
+      // this.store.delete('projects', id);
+
+      return { data: undefined };
     },
   };
+
   public user = {
-    get(id: string): ClientResponse<User> {
-      throw new Error('Method not implemented.');
+    get: async (id: string): ClientResponse<User> => {
+      const user = this.store.get('users').find((v) => v.id === id);
+
+      if (!user) {
+        return { error: { message: 'Not Found', status: 404 } };
+      }
+
+      return { data: user };
     },
-    create(user: User): ClientResponse<User> {
-      throw new Error('Method not implemented.');
+    create: async (user: User): ClientResponse<User> => {
+      if (!this.hasToken()) {
+        return { error: { message: 'Unauthorized', status: 401 } };
+      }
+
+      if (
+        this.store
+          .get('users')
+          .find(({ id }) => id && user.id && id === user.id)
+      ) {
+        return { error: { message: 'Bad Request', status: 400 } };
+      }
+
+      // this.store.add('users', user);
+
+      return { data: user };
     },
   };
+
   public util = {
-    validateUsername(username: string): ClientResponse<UserValidation> {
-      throw new Error('Method not implemented.');
+    validateUsername: async (
+      username: string,
+    ): ClientResponse<UserValidation> => {
+      const user = this.store.get('users').find((v) => v.username === username);
+
+      if (user) {
+        return { error: { message: 'Bad Request', status: 400 } };
+      }
+
+      return { data: { valid: true, reason: 'Username is available' } };
     },
-    getProjectType(): ClientResponse<ProjectType> {
-      throw new Error('Method not implemented.');
+    getProjectTypes: async (): ClientResponse<ProjectType[]> => {
+      return { data: this.store.get('projectTypes') };
     },
-    sendFeedback(content: string): ClientResponse<undefined> {
-      throw new Error('Method not implemented.');
+    sendFeedback: async (content: string): ClientResponse => {
+      return { data: undefined };
     },
   };
 
-  get<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
+  public get<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
     throw new Error('Method not implemented.');
   }
 
-  post<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
+  public post<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
     throw new Error('Method not implemented.');
   }
 
-  put<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
+  public put<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
     throw new Error('Method not implemented.');
   }
-  delete<T>(url: string, config?: AxiosRequestConfig): ClientResponse<T> {
+
+  public delete<T>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): ClientResponse<T> {
     throw new Error('Method not implemented.');
+  }
+
+  private hasToken() {
+    return Boolean(this.token);
   }
 }

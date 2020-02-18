@@ -9,7 +9,6 @@ import {
   UserValidation,
   ProjectType,
 } from './api-types';
-import { MockClient } from './mock-client';
 
 export type ClientError = {
   status: 400 | 401 | 403 | 404 | 500;
@@ -20,7 +19,7 @@ export type ClientResponseObject<T> =
   | { error?: never; data: T }
   | { error: ClientError; data?: never };
 
-export type ClientResponse<T> = Promise<ClientResponseObject<T>>;
+export type ClientResponse<T = undefined> = Promise<ClientResponseObject<T>>;
 
 export type ClientOptions = {
   readonly baseUrl: string;
@@ -47,6 +46,7 @@ export interface Client {
     url: string,
     config?: AxiosRequestConfig,
   ): ClientResponse<T>;
+  setToken(token: string): Client;
   auth: {
     login(email: string, password: string): ClientResponse<JwtToken>;
     register(user: User): ClientResponse<JwtToken>;
@@ -54,11 +54,11 @@ export interface Client {
   project: {
     getAll(): ClientResponse<Project[]>;
     get(id: string): ClientResponse<Project>;
-    create(project: Project): ClientResponse<undefined>;
+    create(project: Project): ClientResponse;
   };
   projectUser: {
     create(projectUser: ProjectUser): ClientResponse<ProjectUser>;
-    delete(id: string): ClientResponse<undefined>;
+    delete(id: string): ClientResponse;
   };
   user: {
     get(id: string): ClientResponse<User>;
@@ -66,16 +66,17 @@ export interface Client {
   };
   util: {
     validateUsername(username: string): ClientResponse<UserValidation>;
-    getProjectType(): ClientResponse<ProjectType>;
-    sendFeedback(content: string): ClientResponse<undefined>;
+    getProjectTypes(): ClientResponse<ProjectType[]>;
+    sendFeedback(content: string): ClientResponse;
   };
 }
 
-export function createClient({
-  useMock = false,
-  ...options
-}: ClientFactoryOptions): Client {
-  if (useMock) {
+export async function createClient(
+  { useMock = false, ...options }: ClientFactoryOptions = { useMock: false },
+): Promise<Client> {
+  if (useMock || process.env.API_CLIENT_MOCK === 'true') {
+    const { MockClient } = await import('./mock-client');
+
     return new MockClient();
   }
 

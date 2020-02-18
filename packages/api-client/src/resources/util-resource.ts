@@ -15,8 +15,8 @@ export class UtilResource extends BaseResource {
     });
   }
 
-  public getProjectType() {
-    return this.client.get<ProjectType>('util/projecttypes');
+  public getProjectTypes() {
+    return this.client.get<ProjectType[]>('util/projecttypes');
   }
 
   public sendFeedback(content: string) {
